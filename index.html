@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>给妈妈的生日礼物</title>
+    <style>
+        * {
+            -webkit-tap-highlight-color: transparent;
+            outline: none;
+        }
+        body {
+            margin: 0; padding: 0;
+            background-color: #fbe9ff; 
+            display: block; 
+            overflow-x: hidden;
+            overflow-y: auto;
+        }
+
+        /* 第一部分容器：不再固定 100vh，而是根据图片比例自适应 */
+        .section-draft {
+            width: 100vw; 
+            position: relative;
+            /* 关键点：设置和 draft_1.png 一致的长宽比，防止裁剪 */
+            /* 假设原图是 1080x1920，请根据实际比例修改 */
+            aspect-ratio: 1080 / 1920; 
+            background-image: url('images/draft_1.png');
+            background-size: contain; 
+            background-position: top center;
+            background-repeat: no-repeat;
+        }
+
+        /* 方案三的核心：如果你在第一屏底部还想叠加独立内容，可以放在这里 */
+        .draft-content-overlay {
+            width: 100%;
+            position: absolute;
+            bottom: 0;
+            left: 0;
+        }
+
+        /* 紧贴第一部分的第二张图 */
+        .new-image-section {
+            width: 100vw;
+            height: auto;
+            /* 假设 image.png 比例是 1080x800 */
+            aspect-ratio: 1080 / 800; 
+            background-image: url('images/image.png');
+            background-size: contain;
+            background-position: center;
+            background-repeat: no-repeat;
+            margin: -500 auto 0;
+            position: relative;
+            z-index: 5
+        }
+
+        /* 贺卡样式 */
+        .card-container {
+            width: 75vw; 
+            margin: -200px auto 40px; 
+            /* -------------------------------------------------- */
+            height: 100vw; 
+            position: relative;
+            cursor: pointer;
+            z-index: 10; /* 确保使用负边距时贺卡在图片上方 */
+        }
+
+        .card-image {
+            width: 100%; height: 100%;
+            background-image: url('images/card_closed.png');
+            background-size: contain; background-repeat: no-repeat;
+            background-position: center;
+            transition: transform 0.4s ease;
+        }
+
+        /* 弹窗遮罩 */
+        .letter-overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.85); 
+            display: none; 
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .letter-content {
+            width: 85%; max-width: 500px;
+            position: relative;
+            animation: popUp 0.5s ease; 
+        }
+
+        @keyframes popUp {
+            from { transform: scale(0.8); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+
+        .close-x {
+            position: absolute; top: -30px; right: 10px;
+            font-size: 45px; color: white; cursor: pointer;
+            font-family: Arial, sans-serif; font-weight: bold;
+            z-index: 2100;
+        }
+
+        /* 小狗样式 */
+        .dog-btn {
+            position: fixed; bottom: 5px; left: 5px;
+            width: 70vw; height: 70vw; max-width: 450px;
+            background-image: url('images/dog_draft.png');
+            background-size: contain; background-repeat: no-repeat;
+            background-position: left bottom;
+            z-index: 100;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+
+    <audio id="bgMusic" src="audio/bg_music.mp3" loop></audio>
+    <audio id="flipSound" src="audio/flip_sound.mp3"></audio>
+
+    <div class="section-draft">
+        </div>
+
+    <div class="new-image-section"></div>
+
+    <div class="card-container" onclick="openCard()">
+        <div id="greeting-card" class="card-image"></div>
+    </div>
+
+    <div style="height: 30vh;"></div>
+    <div class="dog-btn" onclick="openDogLetter()"></div>
+
+    <div id="letterOverlay" class="letter-overlay">
+        <div class="letter-content">
+            <div class="close-x" onclick="closeLetter(event)">×</div>
+            <img id="letter-img" src="images/letter.png" style="width: 100%; border-radius: 10px;">
+        </div>
+    </div>
+
+    <div id="dogOverlay" class="letter-overlay">
+        <div class="letter-content">
+            <div class="close-x" onclick="closeDogLetter(event)">×</div>
+            <img src="images/dog_wish.png" style="width: 100%; border-radius: 10px;">
+        </div>
+    </div>
+
+    <script>
+        var card = document.getElementById('greeting-card');
+        var letterOverlay = document.getElementById('letterOverlay');
+        var dogOverlay = document.getElementById('dogOverlay');
+        var bgMusic = document.getElementById('bgMusic');
+        var flipSound = document.getElementById('flipSound');
+
+        function openCard() {
+            flipSound.currentTime = 0;
+            flipSound.play();
+            if (bgMusic.paused) { bgMusic.play(); }
+            card.style.backgroundImage = "url('images/card_opened.png')";
+            card.style.transform = "scale(1.1)";
+            setTimeout(function() {
+                letterOverlay.style.display = 'flex';
+                document.body.style.overflow = 'hidden';
+            }, 500);
+        }
+
+        function closeLetter(event) {
+            event.stopPropagation(); 
+            letterOverlay.style.display = 'none';
+            document.body.style.overflow = 'auto'; 
+            card.style.backgroundImage = "url('images/card_closed.png')";
+            card.style.transform = "scale(1)";
+            bgMusic.pause();
+        }
+
+        function openDogLetter() {
+            dogOverlay.style.display = 'flex';
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeDogLetter(event) {
+            event.stopPropagation();
+            dogOverlay.style.display = 'none';
+            document.body.style.overflow = 'auto';
+        }
+    </script>
+</body>
+</html>
